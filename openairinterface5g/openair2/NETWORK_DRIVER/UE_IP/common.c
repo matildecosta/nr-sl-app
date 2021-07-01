@@ -57,8 +57,8 @@
         ntohs((addr)->s6_addr16[7])
 
 
-#define OAI_DRV_DEBUG_SEND
-#define OAI_DRV_DEBUG_RECEIVE
+//#define OAI_DRV_DEBUG_SEND
+//#define OAI_DRV_DEBUG_RECEIVE
 #define OAI_DRV_V2X
 
 void
@@ -224,7 +224,7 @@ ue_ip_common_class_wireless2ip(
         // now we know that what comes does not have any network header, we do not set the network header
 	//skb_set_network_header(skb_p, hard_header_len);
 
-	struct ethhdr *mh_recv = eth_hdr(skb_p);
+//	struct ethhdr *mh_recv = eth_hdr(skb_p);
 	printk("[UE_IP_DRV] source MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_source[0],mh_recv->h_source[1],mh_recv->h_source[2],mh_recv->h_source[3],mh_recv->h_source[4],mh_recv->h_source[5]);
 	printk("[UE_IP_DRV] dest MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_dest[0],mh_recv->h_dest[1],mh_recv->h_dest[2],mh_recv->h_dest[3],mh_recv->h_dest[4],mh_recv->h_dest[5]);
 
@@ -506,7 +506,6 @@ ue_ip_common_ip2wireless(
 		printk("[UE_IP_DRV] source MAC %2x.%2x.%2x.%2x.%2x.%2x\n", mh->h_source[0],mh->h_source[1],mh->h_source[2],mh->h_source[3],mh->h_source[4],mh->h_source[5]);
 		printk("[UE_IP_DRV] dest MAC %2x.%2x.%2x.%2x.%2x.%2x\n", mh->h_dest[0],mh->h_dest[1],mh->h_dest[2],mh->h_dest[3],mh->h_dest[4],mh->h_dest[5]);
 
-		int k;
 		printk("[UE_IP_DRV][%s] size %d \n",__FUNCTION__, skb_pP->len);
 		for (k=0; k<skb_pP->len; k++){
 		 printk("[UE_IP_DRV][%s] raw data at %d is %02x  \n",__FUNCTION__,k,*(skb_pP->data+k));
@@ -517,7 +516,9 @@ ue_ip_common_ip2wireless(
 
 		pdcph.sourceL2Id = ((uint8_t)mh->h_source[5] & 0x000000FF) | ( ((uint8_t)mh->h_source[4] << 8) & 0x0000FF00 );
 		pdcph.destinationL2Id =  ((uint8_t)mh->h_dest[5] & 0x000000FF) | ( ((uint8_t)mh->h_dest[4] << 8) & 0x0000FF00 );
-
+   		
+		pdcph.sourceL2Id=1;
+	    	pdcph.destinationL2Id=2;
 
 		printk("[UE_IP_DRV] source Id: 0x%08x\n",pdcph.sourceL2Id );
 		printk("[UE_IP_DRV] destinationL2Id Id: 0x%08x\n",pdcph.destinationL2Id );

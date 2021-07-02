@@ -71,13 +71,17 @@ ue_ip_common_class_wireless2ip(
 
   //---------------------------------------------------------------------------
   struct sk_buff      *skb_p           = NULL;
-  ipversion_t         *ipv_p           = NULL;
   ue_ip_priv_t        *gpriv_p         = netdev_priv(ue_ip_dev[instP]);
+#ifndef OAI_DRV_V2X
+  ipversion_t         *ipv_p           = NULL;
+#endif
+
   unsigned int         hard_header_len = 0;
 #ifdef OAI_DRV_DEBUG_RECEIVE
   int                  i;
   unsigned char       *addr_p          = 0;
 #endif
+
   unsigned char        protocol;
   struct iphdr        *network_header_p  = NULL;
 
@@ -100,14 +104,12 @@ ue_ip_common_class_wireless2ip(
   hard_header_len = ue_ip_dev[instP]->hard_header_len;
 
   skb_set_mac_header(skb_p, 0);
-// JHNOTE: as we are not sure at this stage we have a network header, we should not configure the skb for it at this stage 
-// skb_set_network_header(skb_p, hard_header_len);
   skb_p->mark = rb_idP;
 #ifdef OAI_DRV_DEBUG_RECEIVE
-  printk("[NAC_COMMIN_RECEIVE]: Packet Type %d (%d,%d)",skb_p->pkt_type,PACKET_HOST,PACKET_BROADCAST);
+  printk("[UE_IP_DRV][%s]: Packet Type %d (%d,%d)",__FUNCTION__, skb_p->pkt_type,PACKET_HOST,PACKET_BROADCAST);
 #endif
   skb_p->pkt_type = PACKET_HOST;
-
+  skb_p->ip_summed = CHECKSUM_UNNECESSARY;
 
 #ifdef OAI_DRV_DEBUG_RECEIVE
   printk("[UE_IP_DRV][%s] Receiving packet of size %d from PDCP \n",__FUNCTION__, skb_p->len);
@@ -123,21 +125,16 @@ ue_ip_common_class_wireless2ip(
   printk("[UE_IP_DRV][%s] skb_p->mac_header     @ %p\n",__FUNCTION__,  skb_p->mac_header);
 #endif
 
-
-
-  // LG TEST skb_p->ip_summed = CHECKSUM_NONE;
-  skb_p->ip_summed = CHECKSUM_UNNECESSARY;
-
+// JHNOTE(02/07/2021) - new code to filter on ethertype and on various types of non-IP packets
 #ifdef OAI_DRV_V2X
   // add the ether type to the skb_p as it can be used to filter packets at upper layers based on this field.
     skb_p->protocol = eth_type_trans(skb_p, ue_ip_dev[instP]);
 
-    switch (skb_p->protocol) {
+  switch (skb_p->protocol) {
     case htons(0x0800):  // IPv4
 
   #ifdef OAI_DRV_DEBUG_RECEIVE
-      //printk("NAS_TOOL_RECEIVE: receive IPv4 message\n");
-      addr_p = (unsigned char *)&((struct iphdr *)&skb_p->data[hard_header_len])->saddr;
+	  addr_p = (unsigned char *)&((struct iphdr *)&skb_p->data[hard_header_len])->saddr;
 
       if (addr_p) {
         printk("[UE_IP_DRV][%s] Source %d.%d.%d.%d\n",__FUNCTION__, addr_p[0],addr_p[1],addr_p[2],addr_p[3]);
@@ -188,47 +185,45 @@ ue_ip_common_class_wireless2ip(
       if (hard_header_len == 0) {
         skb_p->protocol = htons(ETH_P_IP);
       }
-
-      //printk("[UE_IP_DRV][COMMON] Writing packet with protocol %x\n",ntohs(skb_p->protocol));
       break;
-      case htons(0x86DD):     //IPv6
+    case htons(0x86DD):     //IPv6
   #ifdef OAI_DRV_DEBUG_RECEIVE
       printk("[UE_IP_DRV][%s] receive IPv6 message\n",__FUNCTION__);
   #endif
       // now we know that what comes is an IPv6 packet, so we can set the network header
       skb_set_network_header(skb_p, hard_header_len);
-      //skb_p->network_header_p = &skb_p->data[hard_header_len];
 
       if (hard_header_len == 0) {
-        skb_p->protocol = htons(ETH_P_IPV6);
+    	  skb_p->protocol = htons(ETH_P_IPV6);
       }
-      //printk("Writing packet with protocol %x\n",ntohs(skb_p->protocol));
       break;
-      case htons(0x894C):     //ETBN according to IEC 61375-2-5
-  	printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
+    case htons(0x894C):     //ETBN according to IEC 61375-2-5
+#ifdef OAI_DRV_DEBUG_RECEIVE
+  		printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
         printk("[UE_IP_DRV][%s] receive L2 message with ethertype %x\n",__FUNCTION__,ntohs(skb_p->protocol));
 
         // now we know that what comes does not have any network header, we do not set the network header
-	//skb_set_network_header(skb_p, hard_header_len);
-  	struct ethhdr *mh_recv = eth_hdr(skb_p);
-  	printk("[UE_IP_DRV] source MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_source[0],mh_recv->h_source[1],mh_recv->h_source[2],mh_recv->h_source[3],mh_recv->h_source[4],mh_recv->h_source[5]);
-  	printk("[UE_IP_DRV] dest MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_dest[0],mh_recv->h_dest[1],mh_recv->h_dest[2],mh_recv->h_dest[3],mh_recv->h_dest[4],mh_recv->h_dest[5]);
+        //skb_set_network_header(skb_p, hard_header_len);
+        struct ethhdr *mh_recv = eth_hdr(skb_p);
+        printk("[UE_IP_DRV] source MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_source[0],mh_recv->h_source[1],mh_recv->h_source[2],mh_recv->h_source[3],mh_recv->h_source[4],mh_recv->h_source[5]);
+        printk("[UE_IP_DRV] dest MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_dest[0],mh_recv->h_dest[1],mh_recv->h_dest[2],mh_recv->h_dest[3],mh_recv->h_dest[4],mh_recv->h_dest[5]);
 
-	printk("[UE_IP_DRV][%s] non-IP packet with ethertype  %x\n",__FUNCTION__, ntohs(skb_p->protocol));
-	break;
-      case htons(0x0003):     //ETBN according to IEC 61375-2-5 but not recognized by the linux kernel
-	printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
+        printk("[UE_IP_DRV][%s] (case 0x894C) non-IP packet with ethertype  %x\n",__FUNCTION__, ntohs(skb_p->protocol));
+#endif
+        break;
+    case htons(0x0003):     //ETBN according to IEC 61375-2-5 but not recognized by the linux kernel
+#ifdef OAI_DRV_DEBUG_RECEIVE
+		printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
       	printk("[UE_IP_DRV][%s] receive L2 message with ethertype %x\n",__FUNCTION__,ntohs(skb_p->protocol));
 
 
-        // now we know that what comes does not have any network header, we do not set the network header
-	//skb_set_network_header(skb_p, hard_header_len);
+      	//	struct ethhdr *mh_recv = eth_hdr(skb_p);
+      	printk("[UE_IP_DRV] source MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_source[0],mh_recv->h_source[1],mh_recv->h_source[2],mh_recv->h_source[3],mh_recv->h_source[4],mh_recv->h_source[5]);
+      	printk("[UE_IP_DRV] dest MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_dest[0],mh_recv->h_dest[1],mh_recv->h_dest[2],mh_recv->h_dest[3],mh_recv->h_dest[4],mh_recv->h_dest[5]);
 
-//	struct ethhdr *mh_recv = eth_hdr(skb_p);
-	printk("[UE_IP_DRV] source MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_source[0],mh_recv->h_source[1],mh_recv->h_source[2],mh_recv->h_source[3],mh_recv->h_source[4],mh_recv->h_source[5]);
-	printk("[UE_IP_DRV] dest MAC %x.%x.%x.%x.%x.%x\n", mh_recv->h_dest[0],mh_recv->h_dest[1],mh_recv->h_dest[2],mh_recv->h_dest[3],mh_recv->h_dest[4],mh_recv->h_dest[5]);
-
-	printk("[UE_IP_DRV][%s] non-IP packet with ethertype  %x\n",__FUNCTION__, ntohs(skb_p->protocol));
+      	printk("[UE_IP_DRV][%s] (case 0x0003) non-IP packet with ethertype  %x\n",__FUNCTION__, ntohs(skb_p->protocol));
+#endif
+      	break;
       case htons(0x8947):     // Geonet according to ETSI ITS
       	//TBC
       	break;
@@ -238,95 +233,93 @@ ue_ip_common_class_wireless2ip(
       default:
           printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
           printk("[UE_IP_DRV][%s] Inst %d: receive unknown message (ethertype=%x)\n",__FUNCTION__,instP, ntohs(skb_p->protocol));
-    }
+  }
 
-#else
+#else  // not OAI_DRV_V2X
   ipv_p = (ipversion_t *)((void *)&(skb_p->data[hard_header_len]));
 
   switch (ipv_p->version) {
 
-  case 6:
+    case 6:
 #ifdef OAI_DRV_DEBUG_RECEIVE
-    printk("[UE_IP_DRV][%s] receive IPv6 message\n",__FUNCTION__);
+      printk("[UE_IP_DRV][%s] receive IPv6 message\n",__FUNCTION__);
 #endif
-    skb_set_network_header(skb_p, hard_header_len);
-    //skb_p->network_header_p = &skb_p->data[hard_header_len];
+      skb_set_network_header(skb_p, hard_header_len);
+      //skb_p->network_header_p = &skb_p->data[hard_header_len];
 
-    if (hard_header_len == 0) {
-      skb_p->protocol = htons(ETH_P_IPV6);
-    } else {
+      if (hard_header_len == 0) {
+        skb_p->protocol = htons(ETH_P_IPV6);
+      } else {
 #ifdef OAI_NW_DRIVER_TYPE_ETHERNET
-      skb_p->protocol = eth_type_trans(skb_p, ue_ip_dev[instP]);
+        skb_p->protocol = eth_type_trans(skb_p, ue_ip_dev[instP]);
 #else
 #endif
-    }
+      }
 
-    //printk("Writing packet with protocol %x\n",ntohs(skb_p->protocol));
-    break;
-
-  case 4:
+      //printk("Writing packet with protocol %x\n",ntohs(skb_p->protocol));
+      break;
+    case 4:
 
 #ifdef OAI_DRV_DEBUG_RECEIVE
-    //printk("NAS_TOOL_RECEIVE: receive IPv4 message\n");
-    addr_p = (unsigned char *)&((struct iphdr *)&skb_p->data[hard_header_len])->saddr;
+      //printk("NAS_TOOL_RECEIVE: receive IPv4 message\n");
+      addr_p = (unsigned char *)&((struct iphdr *)&skb_p->data[hard_header_len])->saddr;
 
-    if (addr_p) {
-      printk("[UE_IP_DRV][%s] Source %d.%d.%d.%d\n",__FUNCTION__, addr_p[0],addr_p[1],addr_p[2],addr_p[3]);
-    }
+      if (addr_p) {
+        printk("[UE_IP_DRV][%s] Source %d.%d.%d.%d\n",__FUNCTION__, addr_p[0],addr_p[1],addr_p[2],addr_p[3]);
+      }
 
-    addr_p = (unsigned char *)&((struct iphdr *)&skb_p->data[hard_header_len])->daddr;
+      addr_p = (unsigned char *)&((struct iphdr *)&skb_p->data[hard_header_len])->daddr;
 
-    if (addr_p) {
-      printk("[UE_IP_DRV][%s] Dest %d.%d.%d.%d\n",__FUNCTION__, addr_p[0],addr_p[1],addr_p[2],addr_p[3]);
-    }
+      if (addr_p) {
+        printk("[UE_IP_DRV][%s] Dest %d.%d.%d.%d\n",__FUNCTION__, addr_p[0],addr_p[1],addr_p[2],addr_p[3]);
+      }
 
-    printk("[UE_IP_DRV][%s] protocol  %d\n",__FUNCTION__, ((struct iphdr *)&skb_p->data[hard_header_len])->protocol);
+      printk("[UE_IP_DRV][%s] protocol  %d\n",__FUNCTION__, ((struct iphdr *)&skb_p->data[hard_header_len])->protocol);
 #endif
 
-    skb_set_network_header(skb_p, hard_header_len);
-    //network_header_p = (struct iphdr *)skb_network_header(skb_p);
-    network_header_p = (struct iphdr *)skb_network_header(skb_p);
-    protocol = network_header_p->protocol;
+      skb_set_network_header(skb_p, hard_header_len);
+      network_header_p = (struct iphdr *)skb_network_header(skb_p);
+      protocol = network_header_p->protocol;
 
 #ifdef OAI_DRV_DEBUG_RECEIVE
 
-    switch (protocol) {
-    case IPPROTO_IP:
-      printk("[UE_IP_DRV][%s] Received Raw IPv4 packet\n",__FUNCTION__);
-      break;
+      switch (protocol) {
+        case IPPROTO_IP:
+          printk("[UE_IP_DRV][%s] Received Raw IPv4 packet\n",__FUNCTION__);
+          break;
 
-    case IPPROTO_IPV6:
-      printk("[UE_IP_DRV][%s] Received Raw IPv6 packet\n",__FUNCTION__);
-      break;
+        case IPPROTO_IPV6:
+          printk("[UE_IP_DRV][%s] Received Raw IPv6 packet\n",__FUNCTION__);
+          break;
 
-    case IPPROTO_ICMP:
-      printk("[UE_IP_DRV][%s] Received Raw ICMP packet\n",__FUNCTION__);
-      break;
+        case IPPROTO_ICMP:
+          printk("[UE_IP_DRV][%s] Received Raw ICMP packet\n",__FUNCTION__);
+          break;
 
-    case IPPROTO_TCP:
-      printk("[UE_IP_DRV][%s] Received TCP packet\n",__FUNCTION__);
-      break;
+        case IPPROTO_TCP:
+          printk("[UE_IP_DRV][%s] Received TCP packet\n",__FUNCTION__);
+          break;
 
-    case IPPROTO_UDP:
-      printk("[UE_IP_DRV][%s] Received UDP packet\n",__FUNCTION__);
+        case IPPROTO_UDP:
+          printk("[UE_IP_DRV][%s] Received UDP packet\n",__FUNCTION__);
+          break;
+
+        default:
+          break;
+      }
+
+#endif
+
+      if (hard_header_len == 0) {
+        skb_p->protocol = htons(ETH_P_IP);
+      }
+
+      //printk("[UE_IP_DRV][COMMON] Writing packet with protocol %x\n",ntohs(skb_p->protocol));
       break;
 
     default:
-      break;
-    }
-
-#endif
-
-    if (hard_header_len == 0) {
-      skb_p->protocol = htons(ETH_P_IP);
-    }
-
-    //printk("[UE_IP_DRV][COMMON] Writing packet with protocol %x\n",ntohs(skb_p->protocol));
-    break;
-
-  default:
-    printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
-    printk("[UE_IP_DRV][%s] Inst %d: receive unknown message (version=%d)\n",__FUNCTION__,instP,ipv_p->version);
+      printk("[UE_IP_DRV][%s] begin RB %d Inst %d Length %d bytes\n",__FUNCTION__,rb_idP,instP,data_lenP);
+      printk("[UE_IP_DRV][%s] Inst %d: receive unknown message (version=%d)\n",__FUNCTION__,instP,ipv_p->version);
   }
 #endif
 
@@ -367,12 +360,16 @@ ue_ip_common_ip2wireless(
   //---------------------------------------------------------------------------
   struct pdcp_data_req_header_s     pdcph;
   ue_ip_priv_t                     *priv_p=netdev_priv(ue_ip_dev[instP]);
-//#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+
+#ifndef OAI_DRV_V2X
   ipversion_t         *ipv_p             = NULL;
   unsigned int         hard_header_len   = 0;
+#endif
+
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
   unsigned char       *src_addr          = 0;
   unsigned char       *dst_addr          = 0;
-//#endif
+#endif
 
 #ifdef LOOPBACK_TEST
   int i;
@@ -380,6 +377,7 @@ ue_ip_common_ip2wireless(
 #ifdef OAI_DRV_DEBUG_SEND
   int j;
 #endif
+
   unsigned int bytes_wrote;
   // Start debug information
 #ifdef OAI_DRV_DEBUG_SEND
@@ -404,48 +402,23 @@ ue_ip_common_ip2wireless(
   pdcph.inst       = instP;
   pdcph.data_size  = skb_pP->len;
 
+ // JHNOTE(02/07/2021) - new code to handle non-ip packet and filter by ethertype
 #ifdef OAI_DRV_V2X
-  hard_header_len = ue_ip_dev[instP]->hard_header_len;
-
   struct ethhdr *mh = eth_hdr(skb_pP);
 
   switch (skb_pP->protocol) {
     case htons(0x0800):  // IPv4
-		  src_addr = (unsigned char *)&((struct iphdr *)&skb_pP->data[hard_header_len])->saddr;
-		  dst_addr = (unsigned char *)&((struct iphdr *)&skb_pP->data[hard_header_len])->daddr;
-#ifdef OAI_DRV_DEBUG_SEND
-		  if (src_addr) {
-		      printk("[UE_IP_DRV][%s] Source %d.%d.%d.%d\n",__FUNCTION__, src_addr[0],src_addr[1],src_addr[2],src_addr[3]);
-		  }
-		  if (dst_addr) {
-		      printk("[UE_IP_DRV][%s] Dest %d.%d.%d.%d\n",__FUNCTION__, dst_addr[0],dst_addr[1],dst_addr[2],dst_addr[3]);
-		  }
-		  printk("[UE_IP_DRV][%s] slrb_id %d\n",__FUNCTION__, pdcph.rb_id);
-#endif
-		// modify inst by IP address for the U-Plane of multiple UEs while L2 fapi simulator start
-		#ifdef UESIM_EXPANSION
-			if ((src_addr[3] - 2)> instP) {
-				pdcph.inst = src_addr[3] - 2;
-				printk("[UE_IP_DRV] change INST from %d to %d\n",instP, pdcph.inst);
-				instP = src_addr[3] - 2;
-				priv_p=netdev_priv(ue_ip_dev[instP]);
-			}
-		#endif
 
-		//get source/destination MAC addresses
-		// struct ethhdr *mh = eth_hdr(skb_pP);
 #ifdef OAI_DRV_DEBUG_SEND
 		printk("[UE_IP_DRV] source MAC %x.%x.%x.%x.%x.%x\n", mh->h_source[0],mh->h_source[1],mh->h_source[2],mh->h_source[3],mh->h_source[4],mh->h_source[5]);
 		printk("[UE_IP_DRV] dest MAC %x.%x.%x.%x.%x.%x\n", mh->h_dest[0],mh->h_dest[1],mh->h_dest[2],mh->h_dest[3],mh->h_dest[4],mh->h_dest[5]);
 #endif
 		//assign source/destL2Id from the last 24 bits of MAC addresses
+		//JHNOTE: previously, the IP address (assigned by the iptables) was used; but we can also use the MAC address (assigned by iptables
+       //         bottom line: we need to extract the same L2 ID that is configured by the controller (e.g. 0x01 to 0x02)
 		pdcph.sourceL2Id = ((uint8_t)mh->h_source[5] & 0x000000FF) | (((uint8_t)mh->h_source[4] << 8) & 0x0000FF00) | (((uint8_t)mh->h_source[3] << 16) & 0x00FF0000) ;
 		pdcph.destinationL2Id = ((uint8_t)mh->h_dest[5] & 0x000000FF) | (((uint8_t)mh->h_dest[4] << 8) & 0x0000FF00) | (((uint8_t)mh->h_dest[3] << 16) & 0x00FF0000);
 
-
-		//get Ipv4 address and pass to PCDP header
-		//pdcph.sourceL2Id = ntohl( ((struct iphdr *)&skb_pP->data[hard_header_len])->saddr) & 0x00FFFFFF;
-		//pdcph.destinationL2Id = ntohl( ((struct iphdr *)&skb_pP->data[hard_header_len])->daddr) & 0x00FFFFFF;
 #ifdef OAI_DRV_DEBUG_SEND
 		printk("[UE_IP_DRV] source Id: 0x%08x\n",pdcph.sourceL2Id );
 		printk("[UE_IP_DRV] destinationL2Id Id: 0x%08x\n",pdcph.destinationL2Id );
@@ -456,22 +429,27 @@ ue_ip_common_ip2wireless(
 #ifdef OAI_DRV_DEBUG_SEND
     	printk("[UE_IP_DRV][%s] receive IPv6 message\n",__FUNCTION__);
 #endif
-    	//TODO
-    	break;
+		//JHNOTE: previously, the IP address (assigned by the iptables) was used; but we can also use the MAC address (assigned by iptables
+       //         bottom line: we need to extract the same L2 ID that is configured by the controller (e.g. 0x01 to 0x02)
+        pdcph.sourceL2Id = ((uint8_t)mh->h_source[5] & 0x000000FF) | (((uint8_t)mh->h_source[4] << 8) & 0x0000FF00) | (((uint8_t)mh->h_source[3] << 16) & 0x00FF0000) ;
+		pdcph.destinationL2Id = ((uint8_t)mh->h_dest[5] & 0x000000FF) | (((uint8_t)mh->h_dest[4] << 8) & 0x0000FF00) | (((uint8_t)mh->h_dest[3] << 16) & 0x00FF0000);
+#ifdef OAI_DRV_DEBUG_SEND
+		printk("[UE_IP_DRV] source Id: 0x%08x\n",pdcph.sourceL2Id );
+		printk("[UE_IP_DRV] destinationL2Id Id: 0x%08x\n",pdcph.destinationL2Id );
+#endif
+		break;
 
     case htons(0x894C):     //ETBN according to IEC 61375-2-5
 #ifdef OAI_DRV_DEBUG_SEND
 		printk("[UE_IP_DRV] source MAC %2x.%2x.%2x.%2x.%2x.%2x\n", mh->h_source[0],mh->h_source[1],mh->h_source[2],mh->h_source[3],mh->h_source[4],mh->h_source[5]);
 		printk("[UE_IP_DRV] dest MAC %2x.%2x.%2x.%2x.%2x.%2x\n", mh->h_dest[0],mh->h_dest[1],mh->h_dest[2],mh->h_dest[3],mh->h_dest[4],mh->h_dest[5]);
 
-		int k;
 		printk("[UE_IP_DRV][%s] size %d \n",__FUNCTION__, skb_pP->len);
-		for (k=0; k<skb_pP->len; k++){
-		 printk("[UE_IP_DRV][%s] raw data at %d is %02x  \n",__FUNCTION__,k,*(skb_pP->data+k));
+		for (j=0; j<skb_pP->len; j++){
+		 printk("[UE_IP_DRV][%s] raw data at %d is %02x  \n",__FUNCTION__,j,*(skb_pP->data+j));
 		}
 #endif
 
-		pdcph.rb_id = 4; // default..to see the difference once we get one from the PAS
 
 		// JHNOTE: rbID retrieved from PAS...TBC
 		/*
@@ -486,20 +464,21 @@ ue_ip_common_ip2wireless(
 		pdcph.rb_id = g_slrbID;
 		pas_unlock(); // to avoid leaving it locked at the end of this function; TODO: check for potential concurent calls of this function
 		 */
-		// TODO check if the sourceID and destinationL2Id are actually taken from the ethheader or taken as hardware ID and groupIP
-		// JHNOTE:  to me, this does not look correct, as the destinationL2Id must be the L2groupID, which cannot come from the eth header of an ETBN packet.
-
+        // for locally generated traffic, this should be enough; but if we relay traffic, the MAC address or the IP address
+		// will not correspond to the controller PC5 config (e.g. 0x01 to 0x02).
+		// JHNOTE (02/07/2021) - overwriting it for now
 		pdcph.sourceL2Id = ((uint8_t)mh->h_source[5] & 0x000000FF) | ( ((uint8_t)mh->h_source[4] << 8) & 0x0000FF00 );
 		pdcph.destinationL2Id =  ((uint8_t)mh->h_dest[5] & 0x000000FF) | ( ((uint8_t)mh->h_dest[4] << 8) & 0x0000FF00 );
-
 		// JHNOTE:  hard coded for now, we need to find a mechanism to tunnel ETBN traffic within the WLTB RD
-	    	pdcph.sourceL2Id=1;
-	    	pdcph.destinationL2Id=2;
+	    pdcph.sourceL2Id=1;
+	    pdcph.destinationL2Id=2;
 
-
+#ifdef OAI_DRV_DEBUG_SEND
+	    printk("[UE_IP_DRV] (case 0x894C) receive packet of ethertype %x \n",__FUNCTION__,ntohs(skb_pP->protocol));
 		printk("[UE_IP_DRV] source Id: 0x%08x\n",pdcph.sourceL2Id );
 		printk("[UE_IP_DRV] destinationL2Id Id: 0x%08x\n",pdcph.destinationL2Id );
 		printk("[UE_IP_DRV] slrbid Id: %i\n",pdcph.rb_id);
+#endif
 		break;
 	case htons(0x0003):     //ETBN according to IEC 61375-2-5 but unrecognized by the kernel, so ETH_P_ALL
 #ifdef OAI_DRV_DEBUG_SEND
@@ -507,28 +486,31 @@ ue_ip_common_ip2wireless(
 		printk("[UE_IP_DRV] dest MAC %2x.%2x.%2x.%2x.%2x.%2x\n", mh->h_dest[0],mh->h_dest[1],mh->h_dest[2],mh->h_dest[3],mh->h_dest[4],mh->h_dest[5]);
 
 		printk("[UE_IP_DRV][%s] size %d \n",__FUNCTION__, skb_pP->len);
-		for (k=0; k<skb_pP->len; k++){
-		 printk("[UE_IP_DRV][%s] raw data at %d is %02x  \n",__FUNCTION__,k,*(skb_pP->data+k));
+		for (j=0; j<skb_pP->len; j++){
+		 printk("[UE_IP_DRV][%s] raw data at %d is %02x  \n",__FUNCTION__,j,*(skb_pP->data+j));
 		}
 #endif
 
-		pdcph.rb_id = 4; // default..to see the difference once we get one from the PAS
-
+		// for locally generated traffic, this should be enough; but if we relay traffic, the MAC address or the IP address
+		// will not correspond to the controller PC5 config (e.g. 0x01 to 0x02).
+		// JHNOTE (02/07/2021) - overwriting it for now
 		pdcph.sourceL2Id = ((uint8_t)mh->h_source[5] & 0x000000FF) | ( ((uint8_t)mh->h_source[4] << 8) & 0x0000FF00 );
 		pdcph.destinationL2Id =  ((uint8_t)mh->h_dest[5] & 0x000000FF) | ( ((uint8_t)mh->h_dest[4] << 8) & 0x0000FF00 );
    		
 		pdcph.sourceL2Id=1;
-	    	pdcph.destinationL2Id=2;
-
+	    pdcph.destinationL2Id=2;
+#ifdef OAI_DRV_DEBUG_SEND
+	    printk("[UE_IP_DRV] (case 0x0003)receive packet of ethertype %x \n",__FUNCTION__,ntohs(skb_pP->protocol));
 		printk("[UE_IP_DRV] source Id: 0x%08x\n",pdcph.sourceL2Id );
 		printk("[UE_IP_DRV] destinationL2Id Id: 0x%08x\n",pdcph.destinationL2Id );
 		printk("[UE_IP_DRV] slrbid Id: %i\n",pdcph.rb_id);
+#endif
 		break;
     default:
     	printk("[UE_IP_DRV][%s] receive packet of unsupported ethertype %x \n",__FUNCTION__,ntohs(skb_pP->protocol));
     	break;
   }
-#else
+#else // not OAI_DRV_V2X
   //pass source/destination IP addresses to PDCP header
   hard_header_len = ue_ip_dev[instP]->hard_header_len;
   ipv_p = (ipversion_t *)((void *)&(skb_pP->data[hard_header_len]));

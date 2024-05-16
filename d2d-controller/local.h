@@ -20,11 +20,11 @@
  */
 
 /***************************************************************************
-                          local.h  -  description
+                          local.h  -  headers to add to the packets, to deal with QoS 
                              -------------------
     copyright            : (C) 2002 by Eurecom
     email                : navid.nikaein@eurecom.fr
-                          lionel.gauthier@eurecom.fr,
+                           lionel.gauthier@eurecom.fr,
                            knopp@eurecom.fr
 
  ***************************************************************************/
@@ -56,12 +56,12 @@
 #include <linux/in.h>
 //#include <net/ndisc.h>
 
-
-
 #include "constant.h"
 #include "platform_types.h"
 #include "sap.h"
 
+typedef uint8_t qfi_t;
+typedef uint8_t pfi_t;  // PDUSessionID or V2XAppID
 
 typedef struct pdcp_data_req_header_s {
   rb_id_t             rb_id;
@@ -77,8 +77,14 @@ typedef struct pdcp_data_ind_header_s {
   ip_traffic_type_t   dummy_traffic_type;
 } pdcp_data_ind_header_t;
 
-
-
-
+// MC ADDED (16-05)
+/**
+ * @brief SDAP header with the necessary info to be extracted by pdcp and then select right SDAP entity
+ */
+typedef struct sdap_data_req_header_s {
+  pfi_t               pfi_app_id;
+  qfi_t               qfi_id;
+  ip_traffic_type_t   traffic_type; // IP or non-IP and cast /* TODO: check if it include cast AND prototype
+} sdap_data_req_header_t;
 
 #endif

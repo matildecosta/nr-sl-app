@@ -1,5 +1,0 @@
-/home/fleimkipa/temporal/lte-sidelink-v2x/openairinterface5g/cmake_targets/nas_sim_tools/build/CMakeFiles/edit_cache.dir
-/home/fleimkipa/temporal/lte-sidelink-v2x/openairinterface5g/cmake_targets/nas_sim_tools/build/CMakeFiles/nvram.dir
-/home/fleimkipa/temporal/lte-sidelink-v2x/openairinterface5g/cmake_targets/nas_sim_tools/build/CMakeFiles/conf2uedata.dir
-/home/fleimkipa/temporal/lte-sidelink-v2x/openairinterface5g/cmake_targets/nas_sim_tools/build/CMakeFiles/rebuild_cache.dir
-/home/fleimkipa/temporal/lte-sidelink-v2x/openairinterface5g/cmake_targets/nas_sim_tools/build/CMakeFiles/usim.dir

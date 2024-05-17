@@ -81,10 +81,10 @@ typedef struct pdcp_data_ind_header_s {
 /**
  * @brief SDAP header with the necessary info to be extracted by pdcp and then select right SDAP entity
  */
-typedef struct sdap_data_req_header_s {
-  pfi_t               pfi_app_id;
-  qfi_t               qfi_id;
-  ip_traffic_type_t   traffic_type; // IP or non-IP and cast /* TODO: check if it include cast AND prototype
-} sdap_data_req_header_t;
+typedef struct sdap_data_header_s {
+  pfi_t               pfi_app_id; // PC5 Flow ID or V2X App ID
+  qfi_t               qfi_id;     // QoS Flow ID
+  ip_traffic_type_t   traffic_type; // IP or non-IP and cast. Includes cast AND prototype (ip/non-ip)
+} sdap_data_header_t;
 
 #endif

@@ -5,19 +5,21 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/if.h>
+#include <netinet/in.h>
 #include <linux/if_tun.h>
-#include <unistd.h>
 #include <inttypes.h>
 
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
-#include <unistd.h>
+
 #include <netdb.h>
 #include <sys/uio.h>
 #include <fcntl.h>
-#include <fstream>
+
+#include <sys/socket.h>
+#include <linux/if_packet.h>
+#include <net/ethernet.h> /* the L2 protocols */
+
 
 #define TUN_DEVICE "/dev/net/tun"
 #define TUN_NAME "oaitun_ue1"
@@ -49,9 +51,13 @@ int main(int argc, char* argv[]){
 
     char buffer[PACKET_SIZE];
     nas_header_t header;
-    int ifindex = argv[1];
+    int ifindex = strtol(argv[1], NULL, 10);
+    printf("If index: %d\n", ifindex);
 
     int sockfd = socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_ALL));
+    if (sockfd < 0) printf ("Error creating socket!\n");
+    else ("Socket created successfully\n");
+    
 
     struct sockaddr_ll SendSockAddr;
     SendSockAddr.sll_family   = AF_PACKET;
@@ -79,7 +85,9 @@ int main(int argc, char* argv[]){
     print_packet(packet, PACKET_SIZE);
     printf("\n");
 
-    sendto(sockfd, packet, sizeof(packet));
-
+    int err = send(sockfd, packet, sizeof(packet), 0);
+    if (err == -1) printf("Error sending the packet!\n");
+    else printf("Sucessfully sent %d bytes.\n", err);
+    
     return 0;
 }

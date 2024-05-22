@@ -51,12 +51,12 @@ int main(){
     strncpy(ifr.ifr_name, TUN_NAME, IFNAMSIZ);
     
     ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
-/*
+
     if (ioctl(tun_fd, TUNSETIFF, &ifr) < 0){
         perror("ioctl(TUNSETIFF)");
         close(tun_fd);
         return 1;
-    }*/
+    }
     
 
     header.pfi = 1;

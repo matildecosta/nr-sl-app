@@ -9,6 +9,16 @@
 #include <unistd.h>
 #include <inttypes.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <sys/uio.h>
+#include <fcntl.h>
+#include <fstream>
+
 #define TUN_DEVICE "/dev/net/tun"
 #define TUN_NAME "oaitun_ue1"
 
@@ -35,29 +45,21 @@ void print_packet(const char *packet, int length) {
 }
 
 
-int main(){
+int main(int argc, char* argv[]){
 
-    int tun_fd;
-    struct ifreq ifr;
     char buffer[PACKET_SIZE];
     nas_header_t header;
+    int ifindex = argv[1];
 
-    // Open TUN
-    if ((tun_fd = open(TUN_DEVICE, O_RDWR)) < 0){
-        perror("Failed to open TUN device");
-    }
+    int sockfd = socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_ALL));
 
-    memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_name, TUN_NAME, IFNAMSIZ);
-    
-    ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
-
-    if (ioctl(tun_fd, TUNSETIFF, &ifr) < 0){
-        perror("ioctl(TUNSETIFF)");
-        close(tun_fd);
-        return 1;
-    }
-    
+    struct sockaddr_ll SendSockAddr;
+    SendSockAddr.sll_family   = AF_PACKET;
+    SendSockAddr.sll_halen    = ETH_ALEN;
+    SendSockAddr.sll_ifindex  = ifindex;
+    SendSockAddr.sll_protocol = htons(ETH_P_ALL);
+    SendSockAddr.sll_hatype   = 0;
+    SendSockAddr.sll_pkttype  = 0;
 
     header.pfi = 1;
     header.qfi = 2;
@@ -68,21 +70,16 @@ int main(){
     printf("QFI: %d, ", header.qfi);
     printf("Type: %d\n", header.type);
 
-    memset(buffer, 0, PACKET_SIZE - sizeof(header));
-
+        // Build packet
     char packet[PACKET_SIZE];
+    memset(buffer, 0, PACKET_SIZE - sizeof(header));
     memcpy(packet, &header, sizeof(header));
     memcpy(packet + sizeof(header), buffer, PACKET_SIZE - sizeof(header));    
     printf("----- Created Packet -----\n");
     print_packet(packet, PACKET_SIZE);
     printf("\n");
 
-    // Write the combined packet (header + data) to the TUN interface
-    if (write(tun_fd, packet, PACKET_SIZE) < 0) {
-        perror("Writing to TUN interface");
-        close(tun_fd);
-        return 1;
-    } else printf("Packet sent successfully\n");
+    sendto(sockfd, packet, sizeof(packet));
 
     return 0;
 }

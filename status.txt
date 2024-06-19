@@ -1,4 +1,5 @@
 19/06/2024
 - This OAI UE2UE setup works in IT computers PCB (SyncRef) and PCC (UE1).
 - Both pings work and both tun interfaces are up.
-- Still not working with app layer.
+- Updated OAI repo to commit 281dc32c260a4af2177ed1ee72872499724c61ec
+

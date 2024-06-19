@@ -491,9 +491,6 @@ static void *ue_tun_read_thread(void *_)
     extern uint8_t nas_qfi;
     extern uint8_t nas_pduid;
 
-      // MC ADDED: Handling QFI and PDUID when receiving info in nas_header
-    LOG_I(PDCP, "Received packet with QFI: %d and PDUID: %d\n", nas_qfi, nas_pduid);
-
     sdap_data_req(&ctxt, rntiMaybeUEid, SRB_FLAG_NO, rb_id, RLC_MUI_UNDEFINED, RLC_SDU_CONFIRM_NO, len, (unsigned char *)rx_buf, PDCP_TRANSMISSION_MODE_DATA, NULL, NULL, nas_qfi, dc, nas_pduid);
   }
 

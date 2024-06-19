@@ -1,4 +1,4 @@
-# Install script for directory: /home/matilde/openairinterface5g/openair3
+# Install script for directory: /home/matilde/nr-sl-app/openairinterface5g/openair3
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,11 +44,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/LPP/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/M3AP/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/S1AP/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/NGAP/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/NRPPA/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/LPP/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/M3AP/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/S1AP/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/NGAP/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/NRPPA/cmake_install.cmake")
 
 endif()
 

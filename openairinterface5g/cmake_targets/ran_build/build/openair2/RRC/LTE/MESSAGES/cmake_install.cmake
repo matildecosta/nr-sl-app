@@ -1,4 +1,4 @@
-# Install script for directory: /home/matilde/openairinterface5g/openair2/RRC/LTE/MESSAGES
+# Install script for directory: /home/matilde/nr-sl-app/openairinterface5g/openair2/RRC/LTE/MESSAGES
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

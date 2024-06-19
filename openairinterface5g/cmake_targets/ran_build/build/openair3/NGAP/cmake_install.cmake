@@ -1,4 +1,4 @@
-# Install script for directory: /home/matilde/openairinterface5g/openair3/NGAP
+# Install script for directory: /home/matilde/nr-sl-app/openairinterface5g/openair3/NGAP
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/NGAP/MESSAGES/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/NGAP/MESSAGES/cmake_install.cmake")
 
 endif()
 

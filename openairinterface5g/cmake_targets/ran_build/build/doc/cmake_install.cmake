@@ -1,4 +1,4 @@
-# Install script for directory: /home/matilde/openairinterface5g/doc
+# Install script for directory: /home/matilde/nr-sl-app/openairinterface5g/doc
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

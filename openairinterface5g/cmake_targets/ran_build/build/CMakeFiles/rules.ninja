@@ -2747,7 +2747,7 @@ rule C_EXECUTABLE_LINKER__replay_node_RelWithDebInfo
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /usr/bin/cmake --regenerate-during-build -S/home/matilde/openairinterface5g -B/home/matilde/openairinterface5g/cmake_targets/ran_build/build
+  command = /usr/bin/cmake --regenerate-during-build -S/home/matilde/nr-sl-app/openairinterface5g -B/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build
   description = Re-running CMake...
   generator = 1
 

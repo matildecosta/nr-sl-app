@@ -1,4 +1,4 @@
-# Install script for directory: /home/matilde/openairinterface5g
+# Install script for directory: /home/matilde/nr-sl-app/openairinterface5g
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,16 +44,16 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_bnProc/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_bnProc_avx512/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_cnProc/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_cnProc_avx512/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/common/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/doc/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair1/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair2/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/openair3/cmake_install.cmake")
-  include("/home/matilde/openairinterface5g/cmake_targets/ran_build/build/radio/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_bnProc/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_bnProc_avx512/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_cnProc/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/ldpc/generator_cnProc_avx512/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/common/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/doc/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair1/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair2/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/openair3/cmake_install.cmake")
+  include("/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/cmake_install.cmake")
 
 endif()
 
@@ -65,5 +65,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/matilde/openairinterface5g/cmake_targets/ran_build/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -236,6 +236,3 @@
 /home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/rfsimulator/CMakeFiles/replay_node.dir
 /home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/rfsimulator/CMakeFiles/edit_cache.dir
 /home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/rfsimulator/CMakeFiles/rebuild_cache.dir
-/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/USRP/CMakeFiles/oai_usrpdevif.dir
-/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/USRP/CMakeFiles/edit_cache.dir
-/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build/radio/USRP/CMakeFiles/rebuild_cache.dir

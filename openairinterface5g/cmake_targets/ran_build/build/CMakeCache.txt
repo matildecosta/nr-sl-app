@@ -325,7 +325,7 @@ OAI_NW_DRIVER_USE_NETLINK:BOOL=True
 OAI_SIMU:BOOL=ON
 
 //Activate OAI's USRP driver
-OAI_USRP:BOOL=ON
+OAI_USRP:BOOL=OFF
 
 //Value Computed by CMake
 OpenAirInterface_BINARY_DIR:STATIC=/home/matilde/nr-sl-app/openairinterface5g/cmake_targets/ran_build/build
@@ -386,26 +386,11 @@ UE_EXPANSION:BOOL=False
 //Activate UE timing trace
 UE_TIMING_TRACE:BOOL=False
 
-//The directory containing a CMake configuration file for UHD.
-UHD_DIR:PATH=/usr/local/lib/cmake/uhd
-
-//Path to a file.
-UHD_INCLUDE_DIRS:PATH=/usr/local/include
-
-//Path to a library.
-UHD_LIBRARIES:FILEPATH=/usr/local/lib/libuhd.so
-
 //Path to a library.
 pkgcfg_lib_OpenSSL_crypto:FILEPATH=/usr/lib/x86_64-linux-gnu/libcrypto.so
 
 //Path to a library.
 pkgcfg_lib_OpenSSL_ssl:FILEPATH=/usr/lib/x86_64-linux-gnu/libssl.so
-
-//Path to a library.
-pkgcfg_lib_PC_UHD_boost_system:FILEPATH=/usr/lib/x86_64-linux-gnu/libboost_system.so
-
-//Path to a library.
-pkgcfg_lib_PC_UHD_uhd:FILEPATH=/usr/local/lib/libuhd.so
 
 //Path to a library.
 pkgcfg_lib_libconfig_config:FILEPATH=/usr/lib/x86_64-linux-gnu/libconfig.so
@@ -515,7 +500,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=43
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=42
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -564,8 +549,6 @@ E2_AGENT-STRINGS:INTERNAL=ON;OFF
 FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[/usr/bin/git][v2.34.1()]
 //Details about finding PkgConfig
 FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.29.2()]
-//Details about finding UHD
-FIND_PACKAGE_MESSAGE_DETAILS_UHD:INTERNAL=[/usr/local/lib/libuhd.so][/usr/local/include][v()]
 //ADVANCED property for variable: GIT_EXECUTABLE
 GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 //STRINGS property for variable: NB_ANTENNAS_RX
@@ -607,54 +590,13 @@ OpenSSL_openssl_INCLUDEDIR:INTERNAL=
 OpenSSL_openssl_LIBDIR:INTERNAL=
 OpenSSL_openssl_PREFIX:INTERNAL=
 OpenSSL_openssl_VERSION:INTERNAL=
-PC_UHD_CFLAGS:INTERNAL=-I/usr/local/include
-PC_UHD_CFLAGS_I:INTERNAL=
-PC_UHD_CFLAGS_OTHER:INTERNAL=
-PC_UHD_FOUND:INTERNAL=1
-PC_UHD_INCLUDEDIR:INTERNAL=/usr/local/include
-PC_UHD_INCLUDE_DIRS:INTERNAL=/usr/local/include
-PC_UHD_LDFLAGS:INTERNAL=-L/usr/local/lib;-luhd;-lboost_system
-PC_UHD_LDFLAGS_OTHER:INTERNAL=
-PC_UHD_LIBDIR:INTERNAL=/usr/local/lib
-PC_UHD_LIBRARIES:INTERNAL=uhd;boost_system
-PC_UHD_LIBRARY_DIRS:INTERNAL=/usr/local/lib
-PC_UHD_LIBS:INTERNAL=
-PC_UHD_LIBS_L:INTERNAL=
-PC_UHD_LIBS_OTHER:INTERNAL=
-PC_UHD_LIBS_PATHS:INTERNAL=
-PC_UHD_MODULE_NAME:INTERNAL=uhd
-PC_UHD_PREFIX:INTERNAL=/usr/local
-PC_UHD_STATIC_CFLAGS:INTERNAL=-I/usr/local/include
-PC_UHD_STATIC_CFLAGS_I:INTERNAL=
-PC_UHD_STATIC_CFLAGS_OTHER:INTERNAL=
-PC_UHD_STATIC_INCLUDE_DIRS:INTERNAL=/usr/local/include
-PC_UHD_STATIC_LDFLAGS:INTERNAL=-L/usr/local/lib;-L/usr/lib/x86_64-linux-gnu;-luhd;-lboost_system
-PC_UHD_STATIC_LDFLAGS_OTHER:INTERNAL=
-PC_UHD_STATIC_LIBDIR:INTERNAL=
-PC_UHD_STATIC_LIBRARIES:INTERNAL=uhd;boost_system
-PC_UHD_STATIC_LIBRARY_DIRS:INTERNAL=/usr/local/lib;/usr/lib/x86_64-linux-gnu
-PC_UHD_STATIC_LIBS:INTERNAL=
-PC_UHD_STATIC_LIBS_L:INTERNAL=
-PC_UHD_STATIC_LIBS_OTHER:INTERNAL=
-PC_UHD_STATIC_LIBS_PATHS:INTERNAL=
-PC_UHD_VERSION:INTERNAL=4.5.0.HEAD-0-g471af98f
-PC_UHD_uhd_INCLUDEDIR:INTERNAL=
-PC_UHD_uhd_LIBDIR:INTERNAL=
-PC_UHD_uhd_PREFIX:INTERNAL=
-PC_UHD_uhd_VERSION:INTERNAL=
 //ADVANCED property for variable: PKG_CONFIG_ARGN
 PKG_CONFIG_ARGN-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
 PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: UHD_INCLUDE_DIRS
-UHD_INCLUDE_DIRS-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: UHD_LIBRARIES
-UHD_LIBRARIES-ADVANCED:INTERNAL=1
 __pkg_config_arguments_OpenSSL:INTERNAL=openssl;REQUIRED
-__pkg_config_arguments_PC_UHD:INTERNAL=QUIET;uhd
 __pkg_config_arguments_libconfig:INTERNAL=REQUIRED;libconfig
 __pkg_config_checked_OpenSSL:INTERNAL=1
-__pkg_config_checked_PC_UHD:INTERNAL=1
 __pkg_config_checked_cblas:INTERNAL=1
 __pkg_config_checked_libconfig:INTERNAL=1
 cblas_CFLAGS:INTERNAL=
@@ -721,11 +663,7 @@ libconfig_libconfig_VERSION:INTERNAL=
 pkgcfg_lib_OpenSSL_crypto-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_OpenSSL_ssl
 pkgcfg_lib_OpenSSL_ssl-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: pkgcfg_lib_PC_UHD_boost_system
-pkgcfg_lib_PC_UHD_boost_system-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: pkgcfg_lib_PC_UHD_uhd
-pkgcfg_lib_PC_UHD_uhd-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_libconfig_config
 pkgcfg_lib_libconfig_config-ADVANCED:INTERNAL=1
-prefix_result:INTERNAL=/usr/local/lib
+prefix_result:INTERNAL=/usr/lib/x86_64-linux-gnu
 

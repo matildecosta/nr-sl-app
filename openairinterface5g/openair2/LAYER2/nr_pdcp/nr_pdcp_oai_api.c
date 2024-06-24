@@ -488,10 +488,17 @@ static void *ue_tun_read_thread(void *_)
     ctxt.rntiMaybeUEid = rntiMaybeUEid;
 
     bool dc = SDAP_HDR_UL_DATA_PDU;
-    extern uint8_t nas_qfi;
-    extern uint8_t nas_pduid;
+    uint8_t nas_qfi = 0;  
+    uint8_t nas_pduid = 0;  // All 0 unless specified in the header
 
       // MC: Handling QFI and PDUID when receiving info in nas_header
+    nas_pduid = rx_buf[0] & (0x00FF);
+    nas_qfi = rx_buf[1] & (0x00FF);
+
+    if (nas_qfi == 0){  // Handling non app packets
+      nas_qfi = 0;
+      nas_pduid = 0;}
+    
     LOG_I(PDCP, "Received packet with QFI: %d and PDUID: %d\n", nas_qfi, nas_pduid);
 
     sdap_data_req(&ctxt, rntiMaybeUEid, SRB_FLAG_NO, rb_id, RLC_MUI_UNDEFINED, RLC_SDU_CONFIRM_NO, len, (unsigned char *)rx_buf, PDCP_TRANSMISSION_MODE_DATA, NULL, NULL, nas_qfi, dc, nas_pduid);

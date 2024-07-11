@@ -1,8 +1,11 @@
-21/06/2024
-- This OAI UE2UE setup works in IT computers PCB (SyncRef) and PCC (UE1). RFSIM
-- The USRP setup gets both interfaces up, but the pings dont get through.
+11/07/2024:
+- created ip_dummy_creator in python also. Works.
 
 24/06/2024
 - ip_dummy_creator is working, sends a packet to oaitun_uex and pdcp tun read receives that packet.
 - it only works running with sudo
 - changed pdcp to retrieve the header from above ("gtp-u?")
+
+21/06/2024
+- This OAI UE2UE setup works in IT computers PCB (SyncRef) and PCC (UE1). RFSIM
+- The USRP setup gets both interfaces up, but the pings dont get through.

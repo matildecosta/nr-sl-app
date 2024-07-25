@@ -1,3 +1,6 @@
+25/07/2024:
+--usrp-args "type=b200,master_clock_rate=46.08e6,clock_source=external,enable_gps=false"
+
 11/07/2024:
 - created ip_dummy_creator in python also. Works.
 

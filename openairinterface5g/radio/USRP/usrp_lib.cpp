@@ -1464,8 +1464,9 @@ extern "C" {
     }
   }
 
-  //s->usrp->set_clock_source("external");
-  //s->usrp->set_time_source("external");
+  //MC: force clock and time source to external
+  s->usrp->set_clock_source("external");
+  s->usrp->set_time_source("external");
   // display USRP settings
   LOG_I(HW,"Actual master clock: %fMHz...\n",s->usrp->get_master_clock_rate()/1e6);
   LOG_I(HW,"Actual clock source %s...\n",s->usrp->get_clock_source(0).c_str());

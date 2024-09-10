@@ -1,18 +1,20 @@
 import socket
 import threading
-import time  # To control sending intervals
+import time
 from scapy.all import IP, TCP, Raw, sendp, Ether
 
 location = "36.9482,-25.0191"
 broadcast = "255.255.255.255"
 user = "B"
+addr = "10.0.0.2"
+intf = "oaitun_ue2"
 time_interval = 1  # Send every 1 second
 print_info = False
 
 def send_packet():
     while True:
         # Build packet with location
-        ip_packet = IP(dst=broadcast, src="10.0.0.2")
+        ip_packet = IP(dst=broadcast, src=addr)
         tcp_packet = TCP(dport=50000, sport=50001, seq=100, ack=101, flags="S")
 
         # Payload is the actual location
@@ -22,8 +24,8 @@ def send_packet():
         # Encapsulate in an Ethernet frame
         ether_frame = Ether()/full_packet
 
-        # Send the packet over the oaitun_ue1 interface
-        sendp(ether_frame, iface="oaitun_ue2")
+        # Send the packet over the interface
+        sendp(ether_frame, iface=intf)
 
         if print_info:     # Print the packet details
             print("Packet Details:")
@@ -39,7 +41,7 @@ def create_listening_socket():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Bind the socket to the port
-    server_address = ('', 50000)  # '' means listening on all available interfaces
+    server_address = ('', 50001)  # '' means listening on all available interfaces
     print(f"Starting up listening on port {server_address[1]}")
     server_socket.bind(server_address)
 
@@ -68,7 +70,7 @@ def create_listening_socket():
             connection.close()
 
 if __name__ == "__main__":
-    print("UE App started for user", user)
+    print("UE App started for user ", user, " with addr", addr, " on interface ", intf)
 
     # Create threads for sending and listening
     sender_thread = threading.Thread(target=send_packet)

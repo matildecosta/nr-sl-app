@@ -5,7 +5,7 @@ from scapy.all import IP, TCP, Raw, sendp, Ether
 
 location = "36.9482,-25.0191"
 broadcast = "255.255.255.255"
-user = "A"
+user = "B"
 time_interval = 1  # Send every 1 second
 print_info = False
 

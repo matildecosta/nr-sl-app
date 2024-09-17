@@ -1,0 +1,36 @@
+<html></html>
+    <head>
+        <title>Sidelink UE App</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    </head>
+    <body style="padding:0;margin:0;width:100vw;height:100vh;">
+        <div id='map' style='width: 100%; height: 100%;'></div>
+        <script>
+            var map = L.map('map').setView([36.9482, -25.0191], 15);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            
+            var marker_userA = L.marker([0,0]).bindPopup('userA').addTo(map);
+            var marker_userB = L.marker([0,0]).bindPopup('userB').addTo(map);
+
+            function updateLocations() {
+                fetch("/locations")
+                .then(response => response.json())
+                .then(data => {
+                        // update marker location
+                    marker_userA.setLatLng([data.A.latitude, data.A.longitude]).addTo(map);
+                    marker_userB.setLatLng([data.B.latitude, data.B.longitude]).addTo(map);
+                });
+            }
+                // Update locations every second
+            setInterval(updateLocations, 1000);
+        </script>
+    </body>
+</html>

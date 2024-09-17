@@ -3,7 +3,7 @@ import threading
 import time
 import sqlite3
 
-location = "36.9482,-25.0191"
+location = "36.9470,-25.0180"
 p2p_ip = '10.0.0.2'
 broadcast_ip = '10.0.0.255'
 self_ip = '10.0.0.1'

@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import sqlite3
 
 location = "36.9482,-25.0191"
 p2p_ip = '10.0.0.2'
@@ -30,6 +31,7 @@ def send_packet():
                 while True:
                     message = user + ":" + location
                     sock.sendall(message.encode())
+                    store_data(message)
                     print(f"[S] Sent: {message}")
                     time.sleep(time_interval)
 
@@ -51,6 +53,7 @@ def send_packet():
                 sock.sendto(message.encode(), (broadcast_ip, p2p_port))
                 # sock.sendto(message.encode(), (p2p_ip, p2p_port)) # To send individually
                 print(f"[S] Sent: {message}")
+                store_data(message)
                 time.sleep(time_interval)
             except Exception as e:
                 print(f"[S] Error sending packet: {e}")
@@ -76,6 +79,8 @@ def listening_socket():
                     data = connection.recv(1024)
                     if data:
                         print(f"[L] Received: {data.decode()}")
+                        store_data(data.decode())
+                        
                     else:
                         break
             finally:
@@ -93,9 +98,46 @@ def listening_socket():
             data, addr = server_socket.recvfrom(1024)
             if data:
                 print(f"[L] Received from {addr}: {data.decode()}")
+                store_data(data.decode())
             else:
                 break
-            
+
+def setup_database():
+        # Connect or create database
+    print("[DB] Setting up database...")
+    db = sqlite3.connect('locations.db')
+    cursor = db.cursor()
+
+        # Create table if it doesn't exist
+    cursor.execute('''
+                   CREATE TABLE IF NOT EXISTS location_data (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   user_id TEXT,
+                   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                   latitude REAL,
+                   longitude REAL
+                   )
+                   ''')
+    db.commit()
+    db.close()
+    print("[DB] Database setup complete.")
+
+def store_data(message):
+    db = sqlite3.connect('locations.db')
+    cursor = db.cursor()
+    
+    # Extract the user and location from the message
+    user, location = message.split(':')
+    latitude, longitude = location.split(',')
+
+    cursor.execute('''
+                     INSERT INTO location_data (user_id, latitude, longitude)
+                        VALUES (?, ?, ?)
+                        ''', (user, latitude, longitude))
+    db.commit()
+    db.close()
+    print(f"[DB] Data stored in database for user {user} at location {location}")
+
 
 if __name__ == "__main__":
     print("UE App starting for user", user)
@@ -103,6 +145,9 @@ if __name__ == "__main__":
     if type == "UDP":
         print(f"UDP allows broadcasting.")
     time.sleep(2)
+
+    # Setup the database
+    setup_database()
 
     # Create threads for sending and listening
     send_thread = threading.Thread(target=send_packet)

@@ -74,7 +74,6 @@ def send_packet():
                 time.sleep(time_interval)
             except Exception as e:
                 print(f"[S] Error sending packet: {e}")
-            
 
 def listening_socket():
     print("[L] Listening socket thread started")
@@ -92,12 +91,10 @@ def listening_socket():
 
             try:
                 while True:
-                    # Receive the data in chunks
                     data = connection.recv(1024)
                     if data:
                         print(f"[L] Received: {data.decode()}")
-                        store_data(data.decode())
-                        
+                        store_data(data.decode())           
                     else:
                         break
             finally:
@@ -111,7 +108,6 @@ def listening_socket():
         print(f"[L] User {user} is listening for packets on port {self_port} and interface {interface_name}")
 
         while True:
-            #print("[L] Waiting for a packet...")
             data, addr = server_socket.recvfrom(1024)
             if data:
                 print(f"[L] Received from {addr}: {data.decode()}")

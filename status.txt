@@ -1,3 +1,9 @@
+18/09/2024:
+- UE2UE app is working with sockets, using TCP and UDP
+- ue_app*.py has already incorporated the mapping function for 2 users
+- missing real GPS coordinates
+- missing the usage of usrps, only rfsim is working
+
 25/07/2024:
 --usrp-args "type=b200,master_clock_rate=46.08e6,clock_source=external,enable_gps=false"
 

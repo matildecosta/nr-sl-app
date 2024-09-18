@@ -3,6 +3,19 @@ import threading
 import time
 import sqlite3
 
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+import json
+import threading
+import uvicorn
+import mapboxgl
+
+import sys
+import signal
+
 location = "36.9470,-25.0180"
 p2p_ip = '10.0.0.2'
 broadcast_ip = '10.0.0.255'
@@ -16,6 +29,10 @@ user = "A"
 time_interval = 1  # Send every 1 second
 
 type="TCP"
+
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 def send_packet():
     print("[S] Send packet thread started")
@@ -138,6 +155,48 @@ def store_data(message):
     db.close()
     print(f"[DB] Data stored in database for user {user} at location {location}")
 
+# Initialize Mapbox map
+@app.get("/", response_class=HTMLResponse)
+def get_map(request:Request):
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+    })
+
+@app.get("/locations")
+def get_location():
+    db = sqlite3.connect('locations.db')
+    cursor  = db.cursor()
+    cursor.execute('''
+                   SELECT user_id, latitude, longitude, MAX(timestamp) as last_timestamp
+                   FROM location_data
+                   GROUP BY user_id
+                    ''')
+    data = cursor.fetchall()
+    db.close()
+
+    locations = {}
+    for row in data:
+        user_id, latitude, longitude, _ = row
+        locations[user_id] = {
+            "latitude": latitude,
+            "longitude": longitude
+        }
+
+    return JSONResponse(content=locations)
+
+def run_uvicorn():
+    config = uvicorn.Config("ue_appA:app", host="0.0.0.0", port=8000, reload=True)
+    server = uvicorn.Server(config)
+
+    def signal_handler(sig, frame):
+        print("Received signal to terminate.")
+        server.should_exit = True
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    server.run()
 
 if __name__ == "__main__":
     print("UE App starting for user", user)
@@ -157,6 +216,10 @@ if __name__ == "__main__":
     send_thread.start()
     listen_thread.start()
 
+    # run the server for the map
+    run_uvicorn()
+
     # Join the threads to ensure they run concurrently
     send_thread.join()
     listen_thread.join()
+

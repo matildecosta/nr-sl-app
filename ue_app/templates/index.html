@@ -17,8 +17,8 @@
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
             
-            var marker_userA = L.marker([0,0]).bindPopup('userA').addTo(map);
-            var marker_userB = L.marker([0,0]).bindPopup('userB').addTo(map);
+            var marker_userA = L.marker([0,0]).bindTooltip('A', {permanent: true, direction: 'top'}).addTo(map);
+            var marker_userB = L.marker([0,0]).bindTooltip('B', {permanent: true, direction: 'top'}).addTo(map);
 
             function updateLocations() {
                 fetch("/locations")

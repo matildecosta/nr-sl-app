@@ -181,7 +181,7 @@ def get_location():
     return JSONResponse(content=locations)
 
 def run_uvicorn():
-    config = uvicorn.Config("ue_appA:app", host="0.0.0.0", port=8000, reload=True)
+    config = uvicorn.Config("ue_appA:app", host="0.0.0.0", port=8001, reload=True)
     server = uvicorn.Server(config)
 
     def signal_handler(sig, frame):

@@ -28,7 +28,7 @@ interface_name = "oaitun_ue2"
 user = "B"
 time_interval = 1  # Send every 1 second
 
-type="TCP"
+type="UDP"
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")

@@ -35,6 +35,6 @@ plt.xlabel('Forced Bandwidth (Kbps)')
 plt.ylabel('Actual Bandwidth (Kbps)')
 plt.grid(True)
 plt.show()
-plt.savefig('fbw_bw_udp.png')
+plt.savefig('fbw_bw_tcp.png')
 
 print("Done!")

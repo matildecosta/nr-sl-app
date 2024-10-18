@@ -21,8 +21,8 @@ p2p_ip = '10.0.0.2'
 broadcast_ip = '10.0.0.255'
 self_ip = '10.0.0.1'
 p2p_port = 50001    # port of the listening socket on the other user
-self_port = 50002   # port of the listening socket on this user
-source_port = 50001 # port of the sending socket
+self_port = 50001   # port of the listening socket on this user
+source_port = 50002 # port of the sending socket
 interface_name = "oaitun_ue1"
 
 user = "A"

@@ -12,11 +12,11 @@ import json
 import threading
 import uvicorn
 import mapboxgl
+import csv
 
 import sys
 import signal
 
-location = "36.9470,-25.0180"
 p2p_ip = '10.0.0.2'
 broadcast_ip = '10.0.0.255'
 self_ip = '10.0.0.1'
@@ -34,7 +34,18 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+locations = []
+    # save csv locations
+with open('userA.csv', mode='r') as file:
+    csv_reader = csv.reader(file)
+    for row in csv_reader:
+        lat, lon = row[0], row[1]
+        loc = f"{lat},{lon}"
+        locations.append(loc)
+
 def send_packet():
+    global id
+    id = 0
     print("[S] Send packet thread started")
     
     if type == "TCP":
@@ -46,11 +57,16 @@ def send_packet():
                 print(f"[S] Connected to {p2p_ip}:{p2p_port}")
 
                 while True:
+                    location = locations[id]
+                    id +=1
+                    if id == len(locations):
+                        id=0
                     message = user + ":" + location
                     sock.sendall(message.encode())
                     store_data(message)
                     print(f"[S] Sent: {message}")
                     time.sleep(time_interval)
+                    
 
             except Exception as e:
                 print(f"[S] Connection failed: {e}. Trying again in 2 seconds...")
@@ -66,6 +82,10 @@ def send_packet():
 
         while True:
             try:
+                location = locations[id]
+                id +=1
+                if id == len(locations):
+                    id=0
                 message = user + ":" + location
                 sock.sendto(message.encode(), (broadcast_ip, p2p_port))
                 # sock.sendto(message.encode(), (p2p_ip, p2p_port)) # To send individually
